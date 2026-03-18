@@ -5,6 +5,7 @@ Produces per-turn metrics CSV and summary statistics.
 import json
 import csv
 from pathlib import Path
+from utils import calculate_overhead_pct
 
 ROOT = Path(__file__).parent.parent
 DATA = ROOT / "sessions" / "all_sessions.json"
@@ -39,7 +40,7 @@ for session in data["sessions"]:
         tool_tok = a.get("tool_schema_tokens", 4400)
         hist_tok = a.get("history_tokens", 0)
         total = a.get("total_input_tokens", sys_tok + tool_tok + hist_tok + user_tok)
-        overhead = round((1 - user_tok / max(total, 1)) * 100, 2)
+        overhead = calculate_overhead_pct(user_tok, total)
         invoked = a.get("tools_invoked", 0)
 
         row = {
@@ -68,9 +69,9 @@ for session in data["sessions"]:
         session_totals["peak_history_tokens"] = max(session_totals["peak_history_tokens"], hist_tok)
 
     # session-level metrics
-    total = max(session_totals["total_input_tokens"], 1)
-    session_totals["overall_user_pct"] = round(session_totals["total_user_tokens"] / total * 100, 2)
-    session_totals["overall_overhead_pct"] = round(100 - session_totals["overall_user_pct"], 2)
+    total = session_totals["total_input_tokens"]
+    session_totals["overall_overhead_pct"] = calculate_overhead_pct(session_totals["total_user_tokens"], total)
+    session_totals["overall_user_pct"] = round(100 - session_totals["overall_overhead_pct"], 2)
     session_totals["avg_tool_utilization_pct"] = round(
         session_totals["total_tool_invocations"] / (23 * session_totals["turns"]) * 100, 1
     )

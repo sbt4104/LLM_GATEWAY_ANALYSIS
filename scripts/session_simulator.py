@@ -5,6 +5,7 @@ Reconstructs what the gateway receives at each turn and measures it.
 
 import json
 from pathlib import Path
+from utils import calculate_overhead_ratio, calculate_overhead_pct
 
 SESSIONS_FILE = Path(__file__).parent.parent / "sessions" / "all_sessions.json"
 
@@ -14,13 +15,6 @@ def build_history(all_messages: list, turn: int) -> list:
     return all_messages[:turn-1]  # turn-1 excludes the current message
 
 
-def calculate_overhead_ratio(user_tokens: int, total_tokens: int) -> float:
-    """Returns what fraction of tokens are NOT the user message."""
-    if total_tokens == 0:
-        return 0.0
-    return (total_tokens - user_tokens) / total_tokens
-
-
 def session_summary(turn_metrics: list) -> dict:
     """Aggregate per-turn metrics into session-level summary."""
     total_input = sum(t["total_input_tokens"] for t in turn_metrics)
@@ -28,7 +22,7 @@ def session_summary(turn_metrics: list) -> dict:
     total_invocations = sum(t["tools_invoked"] for t in turn_metrics)
 
     # Calculate overhead as weighted average from totals, not mean of percentages
-    overhead_pct = round((1 - total_user / total_input) * 100, 2) if total_input else 0
+    overhead_pct = calculate_overhead_pct(total_user, total_input)
 
     return {
         "total_input_tokens": total_input,
