@@ -1,0 +1,11 @@
+session_id,session_type,turns,total_input_tokens,total_user_tokens,total_tool_invocations,peak_history_tokens,overall_user_pct,overall_overhead_pct,avg_tool_utilization_pct
+S01,trivial_social,4,32116,16,0,1020,0.05,99.95,0.0
+S02,factual_qa,3,23765,35,0,820,0.15,99.85,0.0
+S03,single_tool_read,2,15943,23,1,920,0.14,99.86,2.2
+S04,git_workflow,4,32714,34,4,1400,0.1,99.9,4.3
+S05,bug_fix,4,34270,30,6,2200,0.09,99.91,6.5
+S06,code_review_large_input,3,29544,1834,2,3000,6.21,93.79,2.9
+S07,feature_build,6,58858,61,9,5200,0.1,99.9,6.5
+S08,mixed_social_and_code,4,34823,53,7,2600,0.15,99.85,7.6
+S09,edge_huge_input,2,24351,4531,0,4820,18.61,81.39,0.0
+S10,agentic_loop,8,112488,88,19,14200,0.08,99.92,10.3

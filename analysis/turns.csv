@@ -1,0 +1,41 @@
+session_id,session_type,turn,user_input_preview,user_payload_tokens,system_tokens,tool_schema_tokens,history_tokens,total_input_tokens,overhead_ratio_pct,user_payload_pct,tools_sent,tools_invoked,tool_utilization_pct,thinking_used,history_dominant
+S01,trivial_social,1,hi,1,3100,4400,0,7501,99.99,0.01,23,0,0.0,0,0
+S01,trivial_social,2,how are you,4,3100,4400,380,7884,99.95,0.05,23,0,0.0,0,0
+S01,trivial_social,3,what can you help me with,8,3100,4400,700,8208,99.9,0.1,23,0,0.0,0,0
+S01,trivial_social,4,ok thanks bye,3,3100,4400,1020,8523,99.96,0.04,23,0,0.0,0,0
+S02,factual_qa,1,explain the difference between git merge and git rebase,14,3100,4400,0,7514,99.81,0.19,23,0,0.0,0,0
+S02,factual_qa,2,when exactly should I never use rebase,11,3100,4400,410,7921,99.86,0.14,23,0,0.0,0,0
+S02,factual_qa,3,what about interactive rebase for squashing commits,10,3100,4400,820,8330,99.88,0.12,23,0,0.0,0,0
+S03,single_tool_read,1,read my package.json and tell me what it does,13,3100,4400,0,7513,99.83,0.17,23,1,4.3,0,0
+S03,single_tool_read,2,what does the mongoose dependency do exactly,10,3100,4400,920,8430,99.88,0.12,23,0,0.0,0,0
+S04,git_workflow,1,show me git status,5,3100,4400,0,7505,99.93,0.07,23,1,4.3,0,0
+S04,git_workflow,2,stage the auth files and commit with message 'add JWT authen,16,3100,4400,360,7876,99.8,0.2,23,2,8.7,0,0
+S04,git_workflow,3,show me the git log to confirm,8,3100,4400,920,8428,99.91,0.09,23,1,4.3,0,0
+S04,git_workflow,4,"looks good, push it",5,3100,4400,1400,8905,99.94,0.06,23,0,0.0,0,0
+S05,bug_fix,1,my login function keeps returning 401 even with correct cred,16,3100,4400,0,7516,99.79,0.21,23,1,4.3,1,0
+S05,bug_fix,2,yes that's the file,5,3100,4400,620,8125,99.94,0.06,23,1,4.3,0,0
+S05,bug_fix,3,yes please fix it,4,3100,4400,1420,8924,99.96,0.04,23,2,8.7,0,0
+S05,bug_fix,4,"great, commit the fix",5,3100,4400,2200,9705,99.95,0.05,23,2,8.7,0,0
+S06,code_review_large_input,1,review this code: [200-line Express router with auth middlew,1820,3100,4400,0,9320,80.47,19.53,23,0,0.0,0,0
+S06,code_review_large_input,2,"fix issues 2, 3, and 4 please",9,3100,4400,2210,9719,99.91,0.09,23,0,0.0,0,0
+S06,code_review_large_input,3,apply them to the file,5,3100,4400,3000,10505,99.95,0.05,23,2,8.7,0,0
+S07,feature_build,1,add a rate limiting middleware to my Express app — max 100 r,22,3100,4400,0,7522,99.71,0.29,23,1,4.3,1,0
+S07,feature_build,2,yes go ahead and install it,7,3100,4400,700,8207,99.91,0.09,23,2,8.7,0,0
+S07,feature_build,3,"apply to all routes, but exclude /health and /metrics",14,3100,4400,1500,9014,99.84,0.16,23,2,8.7,0,0
+S07,feature_build,4,write tests for the rate limiter,8,3100,4400,2600,10108,99.92,0.08,23,1,4.3,0,0
+S07,feature_build,5,run them,3,3100,4400,3800,11300,99.97,0.03,23,1,4.3,0,0
+S07,feature_build,6,commit everything with a good message,7,3100,4400,5200,12707,99.94,0.06,23,2,8.7,0,1
+S08,mixed_social_and_code,1,"hey, quick question — is TypeScript worth learning if I alre",20,3100,4400,0,7520,99.73,0.27,23,0,0.0,0,0
+S08,mixed_social_and_code,2,"ok, can you add TypeScript to my existing Express project an",19,3100,4400,370,7889,99.76,0.24,23,4,17.4,0,0
+S08,mixed_social_and_code,3,does it build cleanly,6,3100,4400,1800,9306,99.94,0.06,23,1,4.3,0,0
+S08,mixed_social_and_code,4,yes fix them then thanks,8,3100,4400,2600,10108,99.92,0.08,23,2,8.7,0,0
+S09,edge_huge_input,1,summarize this codebase file: [500-line Python Django views.,4520,3100,4400,0,12020,62.4,37.6,23,0,0.0,0,0
+S09,edge_huge_input,2,what are the security risks in the auth section,11,3100,4400,4820,12331,99.91,0.09,23,0,0.0,0,1
+S10,agentic_loop,1,"build a complete /api/notifications endpoint: GET (list), PO",38,3100,4400,0,7538,99.5,0.5,23,3,13.0,1,0
+S10,agentic_loop,2,go ahead,3,3100,4400,1800,9303,99.97,0.03,23,4,17.4,0,0
+S10,agentic_loop,3,add auth middleware to all routes and validate the POST body,15,3100,4400,3200,10715,99.86,0.14,23,3,13.0,0,0
+S10,agentic_loop,4,write tests for all 4 endpoints,8,3100,4400,5100,12608,99.94,0.06,23,1,4.3,0,1
+S10,agentic_loop,5,run the tests,4,3100,4400,7200,14704,99.97,0.03,23,1,4.3,0,1
+S10,agentic_loop,6,fix both failures,4,3100,4400,9100,16604,99.98,0.02,23,3,13.0,0,1
+S10,agentic_loop,7,add pagination to the GET endpoint,8,3100,4400,11800,19308,99.96,0.04,23,2,8.7,0,1
+S10,agentic_loop,8,commit and summarize what was built,8,3100,4400,14200,21708,99.96,0.04,23,2,8.7,0,1
