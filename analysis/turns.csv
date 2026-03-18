@@ -39,3 +39,8 @@ S10,agentic_loop,5,run the tests,4,3100,4400,7200,14704,99.97,0.03,23,1,4.3,0,1
 S10,agentic_loop,6,fix both failures,4,3100,4400,9100,16604,99.98,0.02,23,3,13.0,0,1
 S10,agentic_loop,7,add pagination to the GET endpoint,8,3100,4400,11800,19308,99.96,0.04,23,2,8.7,0,1
 S10,agentic_loop,8,commit and summarize what was built,8,3100,4400,14200,21708,99.96,0.04,23,2,8.7,0,1
+S11,pair_programming,1,let's write a function together to validate email addresses ,16,3100,4400,0,7516,99.79,0.21,23,0,0.0,0,0
+S11,pair_programming,2,nice! now add the regex check for basic email format,12,3100,4400,380,7892,99.85,0.15,23,0,0.0,0,0
+S11,pair_programming,3,good! add length validation — max 254 chars,11,3100,4400,770,8281,99.87,0.13,23,0,0.0,0,0
+S11,pair_programming,4,perfect! now check for consecutive dots,9,3100,4400,1140,8649,99.9,0.1,23,0,0.0,0,0
+S11,pair_programming,5,great! finish it off with the return true,11,3100,4400,1530,9041,99.88,0.12,23,0,0.0,0,0

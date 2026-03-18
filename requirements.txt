@@ -1,0 +1,4 @@
+# Core dependencies
+tiktoken>=0.5.0
+
+# Development dependencies (optional, install with: pip install -r requirements-dev.txt)

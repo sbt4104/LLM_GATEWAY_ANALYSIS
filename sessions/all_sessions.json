@@ -1,9 +1,9 @@
 {
   "dataset_version": "1.0",
-  "description": "Claude Code gateway payload dataset - 10 sessions capturing input/gateway_payload/output across query types",
+  "description": "Claude Code gateway payload dataset - 11 sessions capturing input/gateway_payload/output across query types",
   "schema": {
-    "session_id": "S01-S10",
-    "session_type": "trivial_social | factual | single_tool | git_workflow | bug_fix | code_review | feature_build | mixed | edge_large_input | agentic_loop",
+    "session_id": "S01-S11",
+    "session_type": "trivial_social | factual | single_tool | git_workflow | bug_fix | code_review | feature_build | mixed | edge_large_input | agentic_loop | pair_programming",
     "turns": [
       {
         "turn": "integer",
@@ -933,14 +933,118 @@
           }
         }
       ]
+    },
+
+    {
+      "session_id": "S11",
+      "session_type": "pair_programming",
+      "description": "User and Claude alternate writing parts of a function together across 5 turns. Tests history accumulation in collaborative coding.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "let's write a function together to validate email addresses — you start",
+          "gateway_payload": {
+            "model": "claude-sonnet-4-5",
+            "system": "[full system prompt ~3100 tokens]",
+            "tools": "[all 23 tools ~4400 tokens]",
+            "messages": [{"role": "user", "content": "let's write a function together to validate email addresses — you start"}]
+          },
+          "llm_output": "function validateEmail(email) {\n  if (!email || typeof email !== 'string') {\n    return false;\n  }",
+          "analysis": {
+            "user_payload_tokens": 16,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "total_input_tokens": 7516,
+            "user_payload_pct": 0.21,
+            "tools_invoked": 0,
+            "insight": "Clean start. User message is 0.21% of input."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "nice! now add the regex check for basic email format",
+          "gateway_payload": {
+            "messages": "[T1 history ~120 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "  const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n  if (!emailRegex.test(email)) {\n    return false;\n  }",
+          "analysis": {
+            "user_payload_tokens": 12,
+            "history_tokens": 380,
+            "total_input_tokens": 7892,
+            "history_to_user_ratio": 31.7,
+            "tools_invoked": 0
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "good! add length validation — max 254 chars",
+          "gateway_payload": {
+            "messages": "[T1-T2 history ~770 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "  if (email.length > 254) {\n    return false;\n  }",
+          "analysis": {
+            "user_payload_tokens": 11,
+            "history_tokens": 770,
+            "total_input_tokens": 8281,
+            "history_to_user_ratio": 70,
+            "tools_invoked": 0
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "perfect! now check for consecutive dots",
+          "gateway_payload": {
+            "messages": "[T1-T3 history ~1140 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "  if (email.includes('..')) {\n    return false;\n  }",
+          "analysis": {
+            "user_payload_tokens": 9,
+            "history_tokens": 1140,
+            "total_input_tokens": 8649,
+            "history_to_user_ratio": 126.7,
+            "tools_invoked": 0
+          }
+        },
+        {
+          "turn": 5,
+          "user_input": "great! finish it off with the return true",
+          "gateway_payload": {
+            "messages": "[T1-T4 history ~1530 tokens + T5 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "  return true;\n}\n\nNice! We built a solid email validator together.",
+          "analysis": {
+            "user_payload_tokens": 11,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 1530,
+            "total_input_tokens": 9041,
+            "user_payload_pct": 0.12,
+            "history_to_user_ratio": 139.1,
+            "tools_invoked": 0,
+            "session_total_input_tokens": 41379,
+            "session_tools_invoked": 0,
+            "session_tools_sent": 115,
+            "tool_utilization_rate_pct": 0,
+            "insight": "COLLABORATIVE CHAT. User messages average 12 tokens/turn but history grows rapidly (~380 tok/turn). By T5, history (1530) is 139× larger than user input. Zero tools used despite sending 23 tool schemas 5 times (115 schema transmissions). Pure overhead — no file operations, just iterative dialogue building a function in chat."
+          }
+        }
+      ]
     }
 
   ],
 
   "cross_session_summary": {
-    "sessions_analyzed": 10,
-    "total_turns": 39,
-    "total_input_tokens_across_all_sessions": 356133,
+    "sessions_analyzed": 11,
+    "total_turns": 44,
+    "total_input_tokens_across_all_sessions": 397512,
     "total_user_message_tokens": 647,
     "user_payload_pct_of_total": 0.18,
     "average_overhead_ratio_pct": 99.82,
