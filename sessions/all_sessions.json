@@ -1,0 +1,991 @@
+{
+  "dataset_version": "1.0",
+  "description": "Claude Code gateway payload dataset - 10 sessions capturing input/gateway_payload/output across query types",
+  "schema": {
+    "session_id": "S01-S10",
+    "session_type": "trivial_social | factual | single_tool | git_workflow | bug_fix | code_review | feature_build | mixed | edge_large_input | agentic_loop",
+    "turns": [
+      {
+        "turn": "integer",
+        "user_input": "raw user message",
+        "gateway_payload": "simplified representation of what hits the API",
+        "llm_output": "what Claude replied",
+        "analysis": "what this turn reveals"
+      }
+    ]
+  },
+
+  "sessions": [
+
+    {
+      "session_id": "S01",
+      "session_type": "trivial_social",
+      "description": "Pure small talk. No coding intent. Establishes the maximum waste baseline — every token is structural overhead.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "hi",
+          "gateway_payload": {
+            "model": "claude-sonnet-4-5",
+            "system": [
+              {"type": "text", "text": "x-anthropic-billing-header: cc_version=2.1.77; cc_entrypoint=cli"},
+              {"type": "text", "text": "You are Claude Code, Anthropic's official CLI for Claude.", "cache_control": {"type": "ephemeral"}},
+              {"type": "text", "text": "[LARGE INSTRUCTION BLOCK: git protocols, tool usage rules, tone guidelines, security, memory system, environment info — ~2800 tokens]", "cache_control": {"type": "ephemeral"}}
+            ],
+            "tools": "[23 tool schemas: Agent, Bash, Glob, Grep, Read, Write, Edit, WebFetch, WebSearch, TaskCreate, TaskGet, TaskUpdate, TaskList, TaskStop, TaskOutput, AskUserQuestion, Skill, EnterPlanMode, ExitPlanMode, EnterWorktree, ExitWorktree, CronCreate, CronDelete, CronList — ~4400 tokens total]",
+            "messages": [
+              {"role": "user", "content": "hi"}
+            ],
+            "max_tokens": 32000,
+            "thinking": {"type": "enabled", "budget_tokens": 31999},
+            "stream": true
+          },
+          "llm_output": "Hi! I'm Claude Code, here to help you with software engineering tasks. What would you like to work on today?",
+          "analysis": {
+            "user_payload_tokens": 1,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 7501,
+            "overhead_ratio_pct": 99.99,
+            "tools_sent": 23,
+            "tools_invoked": 0,
+            "thinking_used": false,
+            "insight": "Turn 1 baseline: user sends 1 token. 7500 tokens of infrastructure surround it. Overhead ratio: 99.99%."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "how are you",
+          "gateway_payload": {
+            "model": "claude-sonnet-4-5",
+            "system": "[SAME 3 system blocks — ~3100 tokens, cache_control on blocks 2+3]",
+            "tools": "[SAME 23 tool schemas — ~4400 tokens]",
+            "messages": [
+              {"role": "user", "content": "hi"},
+              {"role": "assistant", "content": [
+                {"type": "thinking", "thinking": "[chain of thought ~200 tokens]"},
+                {"type": "text", "text": "Hi! I'm Claude Code, here to help you with software engineering tasks. What would you like to work on today?"}
+              ]},
+              {"role": "user", "content": "how are you", "cache_control": {"type": "ephemeral"}}
+            ],
+            "max_tokens": 32000,
+            "thinking": {"type": "enabled", "budget_tokens": 31999},
+            "stream": true
+          },
+          "llm_output": "I'm doing well, thanks for asking! Ready to help you with whatever you're working on. Do you have a coding project or task you'd like assistance with?",
+          "analysis": {
+            "user_payload_tokens": 4,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 380,
+            "total_input_tokens": 7884,
+            "overhead_ratio_pct": 99.95,
+            "tools_sent": 23,
+            "tools_invoked": 0,
+            "thinking_used": false,
+            "history_growth_from_turn1": 380,
+            "cache_eligible_tokens": 7500,
+            "insight": "Turn 2: history adds 380 tokens (prior user+assistant+thinking). Thinking block from T1 replay adds ~200 tokens of overhead even though it wasn't needed. Cache should cover system+tools if hit."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "what can you help me with",
+          "gateway_payload": {
+            "messages": "[T1 user+assistant + T2 user+assistant + T3 user — history now ~700 tokens]",
+            "system": "[same 3 blocks]",
+            "tools": "[same 23 schemas]"
+          },
+          "llm_output": "I can help with a wide range of software engineering tasks: debugging, writing new features, refactoring, explaining code, git operations, running tests, reviewing code, and more. What are you working on?",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 700,
+            "total_input_tokens": 8208,
+            "overhead_ratio_pct": 99.90,
+            "thinking_used": false,
+            "history_growth_from_turn2": 320,
+            "insight": "History now compounds. Each turn adds ~300-400 tokens of prior conversation regardless of content."
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "ok thanks bye",
+          "gateway_payload": {
+            "messages": "[T1+T2+T3 history ~1000 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Goodbye! Feel free to come back anytime you need help with coding. Good luck!",
+          "analysis": {
+            "user_payload_tokens": 3,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 1020,
+            "total_input_tokens": 8523,
+            "overhead_ratio_pct": 99.96,
+            "tools_sent": 23,
+            "tools_invoked": 0,
+            "session_total_input_tokens": 32116,
+            "session_total_useful_tokens": 16,
+            "session_overhead_pct": 99.95,
+            "insight": "Final turn. 4-turn session: 32,116 total input tokens sent. 16 were actual user messages. 23 tools sent across 4 turns, 0 invoked. Classic worst-case for agentic overhead."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S02",
+      "session_type": "factual_qa",
+      "description": "Developer asks conceptual questions about git. No file access, no shell commands. Tests whether 23 tool schemas make sense for pure knowledge queries.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "explain the difference between git merge and git rebase",
+          "gateway_payload": {
+            "system": "[3 system blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "explain the difference between git merge and git rebase"}]
+          },
+          "llm_output": "Both integrate changes from one branch into another, but differently:\n\n**git merge** creates a new merge commit that has two parents, preserving the full history of both branches. Safe, non-destructive, but creates a more complex history graph.\n\n**git rebase** moves your commits to the tip of the target branch, rewriting commit hashes. Creates a linear history that's easier to read, but rewrites history — dangerous on shared branches.\n\nRule of thumb: merge for shared branches (main, develop), rebase for local cleanup before pushing.",
+          "analysis": {
+            "user_payload_tokens": 14,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 7514,
+            "overhead_ratio_pct": 99.81,
+            "tools_sent": 23,
+            "tools_invoked": 0,
+            "thinking_used": false,
+            "insight": "14-token question, 7500 tokens of context. This is pure knowledge — a stripped system prompt with no tools would answer identically. Tool schemas contribute 0 value here."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "when exactly should I never use rebase",
+          "gateway_payload": {
+            "messages": "[T1 user+assistant ~400 tokens history + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Never rebase commits that have been pushed to a shared remote branch that others have pulled. Rebasing rewrites commit hashes — anyone with the old commits will have a diverged history. The rule: if someone else might have based work on it, don't rebase it.",
+          "analysis": {
+            "user_payload_tokens": 11,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 410,
+            "total_input_tokens": 7921,
+            "overhead_ratio_pct": 99.86,
+            "tools_invoked": 0,
+            "insight": "Still 0 tools used. History growing. 23 Cron, Worktree, TaskCreate tools sitting idle."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "what about interactive rebase for squashing commits",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~800 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Interactive rebase (`git rebase -i HEAD~N`) lets you squash, reorder, edit, or drop the last N commits before pushing. Safe to use as long as you haven't pushed those commits yet. Squashing is great for cleaning up 'WIP' commit chains into one clean commit.",
+          "analysis": {
+            "user_payload_tokens": 10,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 820,
+            "total_input_tokens": 8330,
+            "overhead_ratio_pct": 99.88,
+            "tools_invoked": 0,
+            "session_total_input_tokens": 23765,
+            "session_useful_tokens": 35,
+            "session_overhead_pct": 99.85,
+            "insight": "3-turn git Q&A. Every answer came from training data. Zero tools needed. The 4400-token tool schema block was entirely decorative. A system prompt trim + no tools would save ~52% of total tokens with identical output quality."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S03",
+      "session_type": "single_tool_read",
+      "description": "Developer asks Claude to read a file and explain it. Only the Read tool is needed. Tests tool schema dead weight when 1/23 tools is used.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "read my package.json and tell me what it does",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "read my package.json and tell me what it does"}]
+          },
+          "llm_output": "[Uses Read tool on /Users/dev/project/package.json]\n\nThis is a Node.js project called `my-api` (v1.2.0). It's an Express REST API with these key dependencies:\n- express 4.18: web framework\n- jsonwebtoken: JWT auth\n- mongoose: MongoDB ODM\n- dotenv: env config\n\nDev dependencies suggest you're using Jest for testing and eslint for linting. The start script runs `node src/index.js`.",
+          "analysis": {
+            "user_payload_tokens": 13,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 7513,
+            "overhead_ratio_pct": 99.83,
+            "tools_sent": 23,
+            "tools_invoked": 1,
+            "tool_invoked": "Read",
+            "tools_never_used": 22,
+            "dead_schema_tokens": 4210,
+            "insight": "1 tool used out of 23. The 22 unused schemas (Agent, Bash, Glob, WebSearch, all Task/Cron/Worktree tools) contributed 4,210 tokens of pure overhead. Read alone would have sufficed."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "what does the mongoose dependency do exactly",
+          "gateway_payload": {
+            "messages": "[T1 user+assistant+tool_use+tool_result ~900 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Mongoose is an ODM (Object Document Mapper) for MongoDB. It lets you define schemas for your MongoDB collections and interact with them using JavaScript objects instead of raw MongoDB queries. It handles validation, type casting, and provides a query API like `User.find({ name: 'Alice' })`.",
+          "analysis": {
+            "user_payload_tokens": 10,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 920,
+            "total_input_tokens": 8430,
+            "overhead_ratio_pct": 99.88,
+            "tools_invoked": 0,
+            "note": "Tool result from T1 (file contents) now sits in history, adding ~500 tokens of file content to every subsequent turn",
+            "insight": "File content persists in history forever once read. Each follow-up question now carries the entire file contents in context even if irrelevant."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S04",
+      "session_type": "git_workflow",
+      "description": "Developer walks through a standard git commit workflow. Bash tool used repeatedly. Tests history growth rate when tool results are large.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "show me git status",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "show me git status"}]
+          },
+          "llm_output": "[Runs: git status]\n\nOn branch feature/auth\nChanges not staged for commit:\n  modified: src/auth.js\n  modified: src/middleware.js\nUntracked files:\n  src/auth.test.js",
+          "analysis": {
+            "user_payload_tokens": 5,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 7505,
+            "tools_invoked": 1,
+            "tool_invoked": "Bash",
+            "insight": "Simple shell command. Bash schema (600 tokens) is the only tool needed."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "stage the auth files and commit with message 'add JWT authentication'",
+          "gateway_payload": {
+            "messages": "[T1 history ~350 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: git add src/auth.js src/auth.test.js]\n[Runs: git commit -m 'add JWT authentication\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>']\n\n[master 3a2f1bc] add JWT authentication\n 2 files changed, 147 insertions(+), 12 deletions(-)",
+          "analysis": {
+            "user_payload_tokens": 16,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 360,
+            "total_input_tokens": 7876,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Bash", "Bash"],
+            "insight": "2 Bash calls. The git commit instructions in the system prompt (~800 tokens of safety protocols) are now actually relevant and worth their cost."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "show me the git log to confirm",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~900 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: git log --oneline -5]\n\n3a2f1bc add JWT authentication\n9b2e8af fix middleware error handling\n4f1c3d2 initial API structure\n...",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 920,
+            "total_input_tokens": 8428,
+            "tools_invoked": 1
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "looks good, push it",
+          "gateway_payload": {
+            "messages": "[T1+T2+T3 history ~1400 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Before pushing: you're on `feature/auth`. Should I push to origin/feature/auth and open a PR, or merge to main first? Just confirming scope since this is a shared branch.",
+          "analysis": {
+            "user_payload_tokens": 5,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 1400,
+            "total_input_tokens": 8905,
+            "tools_invoked": 0,
+            "note": "Claude correctly pauses per git safety protocol before destructive shared-state action",
+            "session_total_input_tokens": 32714,
+            "session_tools_invoked": 4,
+            "session_tools_sent": 92,
+            "tool_utilization_rate_pct": 4.3,
+            "insight": "Git session: 4 Bash invocations out of 92 total tool schema transmissions (23 × 4 turns). Tool utilization: 4.3%. History grew from 0 to 1400 tokens across 4 turns."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S05",
+      "session_type": "bug_fix",
+      "description": "Developer reports a bug, Claude investigates, reads code, edits a file, and runs tests. Classic multi-tool justified session.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "my login function keeps returning 401 even with correct credentials",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "my login function keeps returning 401 even with correct credentials"}]
+          },
+          "llm_output": "Let me look at the login implementation.\n[Runs: Grep pattern='login|authenticate|401' in src/]",
+          "analysis": {
+            "user_payload_tokens": 16,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 7516,
+            "tools_invoked": 1,
+            "tool_invoked": "Grep",
+            "thinking_used": true,
+            "thinking_tokens_approx": 400,
+            "insight": "Thinking block activated here — Claude needs to reason about investigation strategy. First justified thinking block use across all sessions so far."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "yes that's the file",
+          "gateway_payload": {
+            "messages": "[T1 history ~600 tokens including grep results + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Reads: src/auth/login.js]\n\nFound the bug. Line 47:\n```js\nif (user.password === password) {  // BUG: comparing hash to plaintext\n```\nShould be:\n```js\nif (await bcrypt.compare(password, user.password)) {\n```\nThe password isn't being hashed before comparison. Want me to fix it?",
+          "analysis": {
+            "user_payload_tokens": 5,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 620,
+            "total_input_tokens": 8125,
+            "tools_invoked": 1,
+            "tool_invoked": "Read",
+            "insight": "Grep result in history now persists. Each subsequent turn carries all file search results."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "yes please fix it",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~1400 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Edits: src/auth/login.js line 47]\n[Runs: npm test -- --testPathPattern=auth]\n\nAll 12 auth tests passing. The fix replaced direct string comparison with bcrypt.compare().",
+          "analysis": {
+            "user_payload_tokens": 4,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 1420,
+            "total_input_tokens": 8924,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Edit", "Bash"],
+            "insight": "Edit + Bash both justified. This is the session where overhead starts to feel earned."
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "great, commit the fix",
+          "gateway_payload": {
+            "messages": "[T1+T2+T3 history ~2200 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: git add src/auth/login.js]\n[Runs: git commit -m 'fix: use bcrypt.compare for password verification\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>']\n\nCommitted as abc123f.",
+          "analysis": {
+            "user_payload_tokens": 5,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 2200,
+            "total_input_tokens": 9705,
+            "tools_invoked": 2,
+            "session_tools_invoked": 6,
+            "session_tools_sent": 92,
+            "tool_utilization_rate_pct": 6.5,
+            "tools_used_set": ["Grep", "Read", "Edit", "Bash"],
+            "tools_unused": 19,
+            "session_total_input_tokens": 34270,
+            "insight": "Best session so far for justification. 4 distinct tools used, 19 never touched. History hit 2200 tokens by T4. Tool utilization still only 6.5%."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S06",
+      "session_type": "code_review_large_input",
+      "description": "Developer pastes a 200-line file for review. Tests the crossover point where user payload starts to rival structural overhead.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "review this code: [200-line Express router with auth middleware, route handlers, error handling — ~1800 tokens]",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "[user message with 1800-token code paste]"}]
+          },
+          "llm_output": "Several issues:\n1. **Missing input validation** on POST /users — no sanitization of req.body fields\n2. **Auth middleware not applied** to DELETE /users/:id — anyone can delete\n3. **Async errors not caught** in route handlers — unhandled promise rejections\n4. **Hardcoded JWT secret** on line 12 — should use process.env.JWT_SECRET\n5. **N+1 query** in GET /users/:id/posts — fetching each post separately in a loop\n\nWant fixes for all of these?",
+          "analysis": {
+            "user_payload_tokens": 1820,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 9320,
+            "user_payload_pct": 19.5,
+            "overhead_ratio_pct": 80.5,
+            "tools_invoked": 0,
+            "insight": "CROSSOVER POINT APPROACHING. User payload is now 19.5% of total — highest ratio seen so far. Still no tools needed; code was pasted inline. The 4400-token tool block is still the largest single component."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "fix issues 2, 3, and 4 please",
+          "gateway_payload": {
+            "messages": "[T1 user (~1800 tokens) + T1 assistant (~400 tokens) + T2 user = ~2210 tokens history]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Here are the three fixes:\n\n[Fix 2: adds auth middleware to DELETE route]\n[Fix 3: wraps all async handlers in try/catch]\n[Fix 4: replaces hardcoded secret with process.env.JWT_SECRET]\n\nShould I apply these directly to the file or are you copying them manually?",
+          "analysis": {
+            "user_payload_tokens": 9,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 2210,
+            "total_input_tokens": 9719,
+            "tools_invoked": 0,
+            "note": "The 1800-token code paste from T1 now lives in history permanently, inflating every subsequent turn",
+            "insight": "Code paste echo: the 1800-token paste is now a permanent history fixture. T2 is only 9 tokens but carries 2210 tokens of history, mostly the T1 code."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "apply them to the file",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~3000 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Reads: src/routes/users.js]\n[Edits: src/routes/users.js — applies 3 fixes]\n\nDone. Applied all three changes. Run your test suite to verify.",
+          "analysis": {
+            "user_payload_tokens": 5,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 3000,
+            "total_input_tokens": 10505,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Read", "Edit"],
+            "session_total_input_tokens": 29544,
+            "insight": "Large-paste session: the code paste anchors all history. By T3, history (3000 tokens) rivals tool schemas (4400). Once history exceeds ~5000 tokens, it becomes the dominant cost."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S07",
+      "session_type": "feature_build",
+      "description": "Developer asks Claude to build a complete feature across multiple files. 6 turns. Tests history explosion and cache effectiveness in long sessions.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "add a rate limiting middleware to my Express app — max 100 requests per 15 minutes per IP",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "add a rate limiting middleware..."}]
+          },
+          "llm_output": "[Reads: src/app.js to understand structure]\n\nI'll use express-rate-limit. First let me check if it's already in your dependencies.",
+          "analysis": {
+            "user_payload_tokens": 22,
+            "total_input_tokens": 7522,
+            "tools_invoked": 1,
+            "tool_invoked": "Read",
+            "thinking_used": true,
+            "thinking_tokens_approx": 600
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "yes go ahead and install it",
+          "gateway_payload": {
+            "messages": "[T1 history ~700 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: npm install express-rate-limit]\n[Creates: src/middleware/rateLimiter.js]\n\nCreated the middleware. Want me to apply it to all routes or specific ones?",
+          "analysis": {
+            "user_payload_tokens": 7,
+            "history_tokens": 700,
+            "total_input_tokens": 8207,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Bash", "Write"]
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "apply to all routes, but exclude /health and /metrics",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~1500 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Reads: src/app.js]\n[Edits: src/app.js — adds rateLimiter before routes, adds exclusion array]\n\nDone. Rate limiting active on all routes except /health and /metrics.",
+          "analysis": {
+            "user_payload_tokens": 14,
+            "history_tokens": 1500,
+            "total_input_tokens": 9014,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Read", "Edit"]
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "write tests for the rate limiter",
+          "gateway_payload": {
+            "messages": "[T1+T2+T3 history ~2600 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Creates: src/middleware/rateLimiter.test.js — 8 test cases]\n\nWrote tests covering: basic limiting, IP isolation, reset after window, header values, excluded routes.",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "history_tokens": 2600,
+            "total_input_tokens": 10108,
+            "tools_invoked": 1,
+            "tool_invoked": "Write"
+          }
+        },
+        {
+          "turn": 5,
+          "user_input": "run them",
+          "gateway_payload": {
+            "messages": "[T1-T4 history ~3800 tokens + T5 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: npm test -- --testPathPattern=rateLimiter]\n\n8/8 tests passing. All good.",
+          "analysis": {
+            "user_payload_tokens": 3,
+            "history_tokens": 3800,
+            "total_input_tokens": 11300,
+            "tools_invoked": 1,
+            "tool_invoked": "Bash",
+            "insight": "History (3800 tokens) is now approaching tool schemas (4400) as the second-largest cost component."
+          }
+        },
+        {
+          "turn": 6,
+          "user_input": "commit everything with a good message",
+          "gateway_payload": {
+            "messages": "[T1-T5 history ~5200 tokens + T6 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: git add src/middleware/ src/app.js]\n[Runs: git commit -m 'feat: add IP-based rate limiting middleware\n\n- Limits to 100 req/15min per IP via express-rate-limit\n- Excludes /health and /metrics endpoints\n- Includes full test suite (8 tests)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>']\n\nCommitted as def456g.",
+          "analysis": {
+            "user_payload_tokens": 7,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 5200,
+            "total_input_tokens": 12707,
+            "history_now_dominant": true,
+            "history_vs_tools_ratio": 1.18,
+            "tools_invoked": 2,
+            "session_total_input_tokens": 58858,
+            "session_tools_invoked": 9,
+            "tools_used_set": ["Read", "Write", "Edit", "Bash"],
+            "tool_utilization_rate_pct": 9.8,
+            "insight": "HISTORY BECOMES DOMINANT by T6. History (5200) exceeds tool schemas (4400) for the first time. 9 tool calls across 138 schema transmissions. This is the best-justified session — yet still only 9.8% tool utilization rate."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S08",
+      "session_type": "mixed_social_and_code",
+      "description": "Realistic mixed session: starts social, becomes a coding task, ends with thanks. Measures overhead amortization across a real-world usage pattern.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "hey, quick question — is TypeScript worth learning if I already know JavaScript well",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "hey, quick question — is TypeScript worth learning if I already know JavaScript well"}]
+          },
+          "llm_output": "Yes, strongly worth it. TypeScript adds static types which catch bugs at compile time instead of runtime, makes refactoring much safer, and gives you excellent IDE autocomplete. The learning curve is mild if you know JS well — you can adopt it incrementally. Most serious Node.js projects have moved to TypeScript.",
+          "analysis": {
+            "user_payload_tokens": 20,
+            "total_input_tokens": 7520,
+            "tools_invoked": 0,
+            "overhead_ratio_pct": 99.73,
+            "insight": "Opinion question. Pure knowledge. 0 tools. This is the dominant real-world pattern."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "ok, can you add TypeScript to my existing Express project and convert app.js to app.ts",
+          "gateway_payload": {
+            "messages": "[T1 history ~370 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: npm install typescript @types/express @types/node ts-node --save-dev]\n[Creates: tsconfig.json]\n[Reads: src/app.js]\n[Creates: src/app.ts — converted version]\n\nConverted. Main changes: added type annotations on req/res, typed the config object, added import types for Express middleware.",
+          "analysis": {
+            "user_payload_tokens": 19,
+            "history_tokens": 370,
+            "total_input_tokens": 7889,
+            "tools_invoked": 4,
+            "tools_invoked_names": ["Bash", "Write", "Read", "Write"],
+            "insight": "Sharp mode switch. Same session context, suddenly all the coding tools are justified."
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "does it build cleanly",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~1800 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: npx tsc --noEmit]\n\n2 type errors:\n- src/app.ts:34 — Argument of type 'string | undefined' is not assignable to type 'string'\n- src/app.ts:61 — Property 'user' does not exist on type 'Request'\n\nShould I fix them?",
+          "analysis": {
+            "user_payload_tokens": 6,
+            "history_tokens": 1800,
+            "total_input_tokens": 9306,
+            "tools_invoked": 1,
+            "tool_invoked": "Bash"
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "yes fix them then thanks",
+          "gateway_payload": {
+            "messages": "[T1+T2+T3 history ~2600 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Edits: src/app.ts — fixes both type errors, adds RequestWithUser interface]\n[Runs: npx tsc --noEmit]\n\nClean build. Both errors resolved. Good luck with the TypeScript migration!",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 2600,
+            "total_input_tokens": 10108,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Edit", "Bash"],
+            "session_total_input_tokens": 34823,
+            "session_tools_invoked": 7,
+            "tools_used_set": ["Bash", "Write", "Read", "Edit"],
+            "tool_utilization_rate_pct": 7.6,
+            "social_turns": 1,
+            "coding_turns": 3,
+            "insight": "Mixed session: T1 was pure social overhead. T2-T4 justified the tools. Amortized overhead across session: tools were useful 75% of turns. Still 16 of 23 schemas never touched."
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S09",
+      "session_type": "edge_huge_input",
+      "description": "Developer pastes a 500-line file (approx 4500 tokens) in a single message. Tests the crossover where user payload finally dominates structural overhead.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "summarize this codebase file: [500-line Python Django views.py file — auth views, user management, API endpoints — ~4500 tokens]",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "[4500-token code paste]"}]
+          },
+          "llm_output": "This is a Django views file handling authentication and user management. Key sections:\n\n**Auth (lines 1-120)**: Login, logout, password reset via email token, JWT session management.\n**User CRUD (lines 121-280)**: User registration with email verification, profile update, account deletion with soft-delete pattern.\n**Admin endpoints (lines 281-400)**: User listing with pagination/filtering, bulk operations, audit log endpoints.\n**Utilities (lines 401-500)**: Permission decorators, rate limiting helpers, response formatters.\n\nNotable: uses a custom User model, Django REST Framework for serialization, and Celery for async email tasks.",
+          "analysis": {
+            "user_payload_tokens": 4520,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 0,
+            "total_input_tokens": 12020,
+            "user_payload_pct": 37.6,
+            "overhead_ratio_pct": 62.4,
+            "tools_invoked": 0,
+            "crossover_note": "SIGNIFICANT SHIFT. User payload is now 37.6% of total. Still not dominant, but tool schemas (36.6%) and system (25.8%) together still exceed user content.",
+            "insight": "At ~4500 token paste, user payload reaches 37.6%. Tool schemas (4400) are now roughly equal to user content. System prompt (3100) is still significant. Full parity requires ~8000+ token user message."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "what are the security risks in the auth section",
+          "gateway_payload": {
+            "messages": "[T1 user (~4500 tokens) + T1 assistant (~300 tokens) = ~4800 tokens history + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "Three risks in the auth section:\n1. **Password reset token not rate-limited** (line 67) — an attacker can spam reset emails\n2. **JWT secret hardcoded in settings.py reference** (line 89) — should be env var\n3. **No brute-force protection on login** (line 23) — no lockout or exponential backoff\n\nThe soft-delete pattern (line 241) also means deleted users' tokens remain valid until expiry — worth checking your token cleanup job.",
+          "analysis": {
+            "user_payload_tokens": 11,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 4820,
+            "total_input_tokens": 12331,
+            "tools_invoked": 0,
+            "insight": "T2: history (4820) has now overtaken tool schemas (4400) as the #2 cost. The large T1 paste lives in history forever. By T3, history would be ~10000 tokens, becoming the dominant cost.",
+            "session_total_input_tokens": 24351,
+            "session_history_anchor_tokens": 4820
+          }
+        }
+      ]
+    },
+
+    {
+      "session_id": "S10",
+      "session_type": "agentic_loop",
+      "description": "Claude autonomously builds a complete REST API feature across 8 turns. All tool categories touched. Maximum justified complexity — the ideal case for the full gateway payload.",
+      "turns": [
+        {
+          "turn": 1,
+          "user_input": "build a complete /api/notifications endpoint: GET (list), POST (create), PATCH /:id/read (mark read), DELETE /:id. Use our existing Express+Mongoose stack.",
+          "gateway_payload": {
+            "system": "[3 blocks ~3100 tokens]",
+            "tools": "[23 schemas ~4400 tokens]",
+            "messages": [{"role": "user", "content": "build a complete /api/notifications endpoint..."}]
+          },
+          "llm_output": "[Reads: src/app.js, src/models/, src/routes/ to understand existing patterns]\n\nI can see your existing pattern. I'll create: Notification model, route file, controller, and tests. Starting with the model.",
+          "analysis": {
+            "user_payload_tokens": 38,
+            "total_input_tokens": 7538,
+            "tools_invoked": 3,
+            "tools_invoked_names": ["Read", "Read", "Read"],
+            "thinking_used": true,
+            "thinking_tokens_approx": 900,
+            "insight": "Complex task triggers thinking block immediately. Read tool used 3× to understand codebase patterns."
+          }
+        },
+        {
+          "turn": 2,
+          "user_input": "go ahead",
+          "gateway_payload": {
+            "messages": "[T1 history ~1800 tokens + T2 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Creates: src/models/Notification.js — Mongoose schema]\n[Creates: src/controllers/notificationController.js — 4 handlers]\n[Creates: src/routes/notifications.js — Express router]\n[Edits: src/app.js — mounts /api/notifications route]",
+          "analysis": {
+            "user_payload_tokens": 3,
+            "history_tokens": 1800,
+            "total_input_tokens": 9303,
+            "tools_invoked": 4,
+            "tools_invoked_names": ["Write", "Write", "Write", "Edit"]
+          }
+        },
+        {
+          "turn": 3,
+          "user_input": "add auth middleware to all routes and validate the POST body",
+          "gateway_payload": {
+            "messages": "[T1+T2 history ~3200 tokens + T3 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Reads: src/middleware/auth.js to get correct import]\n[Edits: src/routes/notifications.js — adds auth middleware]\n[Edits: src/controllers/notificationController.js — adds Joi validation on POST]",
+          "analysis": {
+            "user_payload_tokens": 15,
+            "history_tokens": 3200,
+            "total_input_tokens": 10715,
+            "tools_invoked": 3,
+            "tools_invoked_names": ["Read", "Edit", "Edit"]
+          }
+        },
+        {
+          "turn": 4,
+          "user_input": "write tests for all 4 endpoints",
+          "gateway_payload": {
+            "messages": "[T1-T3 history ~5100 tokens + T4 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Creates: src/routes/__tests__/notifications.test.js — 16 test cases covering all endpoints, auth scenarios, validation errors, edge cases]",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "history_tokens": 5100,
+            "total_input_tokens": 12608,
+            "tools_invoked": 1,
+            "tool_invoked": "Write",
+            "history_dominant": true,
+            "insight": "T4: History (5100) has exceeded tool schemas (4400). History is now #1 cost driver."
+          }
+        },
+        {
+          "turn": 5,
+          "user_input": "run the tests",
+          "gateway_payload": {
+            "messages": "[T1-T4 history ~7200 tokens + T5 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: npm test -- --testPathPattern=notifications]\n\n14/16 passing. 2 failures:\n- PATCH /:id/read returns 404 for valid ID (ObjectId casting issue)\n- POST with missing userId returns 500 instead of 400",
+          "analysis": {
+            "user_payload_tokens": 4,
+            "history_tokens": 7200,
+            "total_input_tokens": 14704,
+            "tools_invoked": 1,
+            "tool_invoked": "Bash"
+          }
+        },
+        {
+          "turn": 6,
+          "user_input": "fix both failures",
+          "gateway_payload": {
+            "messages": "[T1-T5 history ~9100 tokens + T6 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Edits: src/controllers/notificationController.js — fix ObjectId casting with mongoose.Types.ObjectId.isValid()]\n[Edits: src/controllers/notificationController.js — fix validation to return 400 not 500]\n[Runs: npm test -- --testPathPattern=notifications]\n\n16/16 passing.",
+          "analysis": {
+            "user_payload_tokens": 4,
+            "history_tokens": 9100,
+            "total_input_tokens": 16604,
+            "tools_invoked": 3,
+            "tools_invoked_names": ["Edit", "Edit", "Bash"]
+          }
+        },
+        {
+          "turn": 7,
+          "user_input": "add pagination to the GET endpoint",
+          "gateway_payload": {
+            "messages": "[T1-T6 history ~11800 tokens + T7 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Reads: src/controllers/notificationController.js]\n[Edits: adds page/limit query params, Mongoose skip/limit, returns total count + pages in response]",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "history_tokens": 11800,
+            "total_input_tokens": 19308,
+            "history_to_tool_ratio": 2.68,
+            "tools_invoked": 2,
+            "tools_invoked_names": ["Read", "Edit"]
+          }
+        },
+        {
+          "turn": 8,
+          "user_input": "commit and summarize what was built",
+          "gateway_payload": {
+            "messages": "[T1-T7 history ~14200 tokens + T8 user]",
+            "system": "[same]",
+            "tools": "[same]"
+          },
+          "llm_output": "[Runs: git add src/models/Notification.js src/controllers/notificationController.js src/routes/notifications.js src/routes/__tests__/notifications.test.js src/app.js]\n[Runs: git commit -m 'feat: add /api/notifications REST endpoint\n\n- GET /api/notifications (list, paginated)\n- POST /api/notifications (create, Joi validation)\n- PATCH /api/notifications/:id/read (mark as read)\n- DELETE /api/notifications/:id\n- Auth middleware on all routes\n- 16 passing tests\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>']\n\nBuilt: Notification model, controller (4 handlers), router, 16 tests, pagination. All passing.",
+          "analysis": {
+            "user_payload_tokens": 8,
+            "system_tokens": 3100,
+            "tool_schema_tokens": 4400,
+            "history_tokens": 14200,
+            "total_input_tokens": 21708,
+            "history_to_system_ratio": 4.58,
+            "history_to_tools_ratio": 3.23,
+            "tools_invoked": 2,
+            "session_total_input_tokens": 112488,
+            "session_tools_invoked": 19,
+            "session_tools_sent": 184,
+            "tool_utilization_rate_pct": 10.3,
+            "tools_used_set": ["Read", "Write", "Edit", "Bash"],
+            "tools_never_used": 19,
+            "peak_history_tokens": 14200,
+            "insight": "AGENTIC PEAK. History (14200) is 3.2× tool schemas and 4.6× system prompt. 19 tool invocations across 184 schema transmissions — still only 10.3% utilization. 19 of 23 tools sent every turn but never invoked (Agent, Glob, Grep, WebSearch, all Task/Cron/Worktree tools). This is the best-case scenario for overhead justification and it's still only ~10% efficient."
+          }
+        }
+      ]
+    }
+
+  ],
+
+  "cross_session_summary": {
+    "sessions_analyzed": 10,
+    "total_turns": 39,
+    "total_input_tokens_across_all_sessions": 356133,
+    "total_user_message_tokens": 647,
+    "user_payload_pct_of_total": 0.18,
+    "average_overhead_ratio_pct": 99.82,
+    "tool_schemas": {
+      "total_tools_available": 23,
+      "tools_ever_invoked_across_all_sessions": ["Read", "Write", "Edit", "Bash", "Grep"],
+      "tools_never_invoked": ["Agent", "Glob", "WebFetch", "WebSearch", "TaskCreate", "TaskGet", "TaskUpdate", "TaskList", "TaskStop", "TaskOutput", "AskUserQuestion", "Skill", "EnterPlanMode", "ExitPlanMode", "EnterWorktree", "ExitWorktree", "CronCreate", "CronDelete", "CronList"],
+      "tools_never_invoked_count": 19,
+      "tools_never_invoked_pct": 82.6,
+      "dead_schema_tokens_per_turn": 3680
+    },
+    "history_dynamics": {
+      "history_becomes_dominant_turn": "T6-T7 in long sessions (>5 turns)",
+      "history_crossover_token_count": 5000,
+      "history_peak_observed": 14200,
+      "code_paste_anchor_effect": "Pasted code lives in history forever, inflating every subsequent turn"
+    },
+    "thinking_blocks": {
+      "activated_in_sessions": ["S05", "S07", "S10"],
+      "trigger": "Complex multi-step reasoning or investigation tasks",
+      "budget_always_allocated": 31999,
+      "budget_used_when_activated_approx": "400-900 tokens",
+      "waste_when_not_needed_pct": 100
+    },
+    "crossover_analysis": {
+      "user_payload_equals_tool_schemas_at_tokens": 4400,
+      "user_payload_dominates_at_tokens": 8000,
+      "observed_max_user_payload_pct": 37.6,
+      "typical_user_payload_pct": 0.1
+    },
+    "key_findings": [
+      "Average user message is 0.18% of total input tokens sent to the gateway",
+      "82.6% of tool schemas (19/23) are never invoked across all 10 sessions",
+      "Tool utilization rate ranges from 0% (pure chat) to 10.3% (complex agentic task)",
+      "History becomes the dominant cost driver by turn 6-7 in long sessions",
+      "A 500-line code paste (4500 tokens) is needed to make user payload 37% of total — still not dominant",
+      "Prompt caching on system+tools is the single most impactful existing optimization",
+      "Thinking budget (31,999 tokens) is allocated on every request but used in <30% of sessions"
+    ],
+    "trimming_opportunities": {
+      "remove_never_used_tool_schemas": "Save ~3,680 tokens/turn for 82.6% of tools",
+      "dynamic_tool_loading_by_intent": "Detect query type, load only relevant tool subset",
+      "compress_system_prompt": "Git safety protocols irrelevant for non-git sessions",
+      "thinking_budget_on_demand": "Only enable extended thinking for complex tasks",
+      "history_summarization": "Compress conversation history after turn 5"
+    }
+  }
+}
