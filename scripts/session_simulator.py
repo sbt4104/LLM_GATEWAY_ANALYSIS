@@ -1,15 +1,6 @@
 """
 Simulates gateway payloads for each session turn from the dataset.
 Reconstructs what the gateway receives at each turn and measures it.
-
-BUG 1: build_history() slices messages wrong — uses messages[:turn] but
-        turn is 1-indexed, so turn 1 gives messages[:1] which includes the
-        current message, not the history before it. Should be messages[:turn-1].
-BUG 2: calculate_overhead_ratio() divides by total_tokens but never guards
-        against total_tokens being 0 — will throw ZeroDivisionError on empty payloads.
-BUG 3: session_summary() computes average overhead as mean of per-turn overhead %,
-        but this is wrong — it should be computed from total tokens, not averaged %s.
-        (A 4-token turn at 99.9% and a 4500-token turn at 62% should NOT average to 80.95%)
 """
 
 import json
@@ -20,12 +11,14 @@ SESSIONS_FILE = Path(__file__).parent.parent / "sessions" / "all_sessions.json"
 
 def build_history(all_messages: list, turn: int) -> list:
     """Return messages that appear in history at a given turn (1-indexed)."""
-    return all_messages[:turn]  # BUG 1: should be [:turn-1] — off by one, includes current msg
+    return all_messages[:turn-1]  # turn-1 excludes the current message
 
 
 def calculate_overhead_ratio(user_tokens: int, total_tokens: int) -> float:
     """Returns what fraction of tokens are NOT the user message."""
-    return (total_tokens - user_tokens) / total_tokens  # BUG 2: no zero guard
+    if total_tokens == 0:
+        return 0.0
+    return (total_tokens - user_tokens) / total_tokens
 
 
 def session_summary(turn_metrics: list) -> dict:
@@ -34,15 +27,14 @@ def session_summary(turn_metrics: list) -> dict:
     total_user = sum(t["user_payload_tokens"] for t in turn_metrics)
     total_invocations = sum(t["tools_invoked"] for t in turn_metrics)
 
-    # BUG 3: wrong averaging — should be total_user/total_input, not mean of per-turn %s
-    avg_overhead = sum(t["overhead_ratio_pct"] for t in turn_metrics) / len(turn_metrics)
+    # Calculate overhead as weighted average from totals, not mean of percentages
+    overhead_pct = round((1 - total_user / total_input) * 100, 2) if total_input else 0
 
     return {
         "total_input_tokens": total_input,
         "total_user_tokens": total_user,
         "total_tool_invocations": total_invocations,
-        "average_overhead_pct": round(avg_overhead, 2),   # BUG 3 lives here
-        "correct_overhead_pct": round((1 - total_user / total_input) * 100, 2) if total_input else 0,
+        "overhead_pct": overhead_pct,
         "turns": len(turn_metrics),
     }
 
@@ -99,8 +91,7 @@ def run_all_sessions():
         print(f"  Turns: {summary['turns']}")
         print(f"  Total input tokens: {summary['total_input_tokens']:,}")
         print(f"  Total user tokens:  {summary['total_user_tokens']:,}")
-        print(f"  Overhead (BUGGY avg of %s): {summary['average_overhead_pct']}%")
-        print(f"  Overhead (correct):         {summary['correct_overhead_pct']}%")
+        print(f"  Overhead: {summary['overhead_pct']}%")
         print(f"  Tool invocations: {summary['total_tool_invocations']}")
         all_results.extend(turn_metrics)
 
