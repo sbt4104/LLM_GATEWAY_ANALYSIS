@@ -1,11 +1,6 @@
 """
 Token counter for gateway payloads.
 Counts tokens per component: system, tools, history, user message.
-
-BUG 2: count_json() calls json.dumps but doesn't handle non-serializable types,
-        will crash on datetime objects or custom classes in real payloads.
-BUG 3: the history_tokens() function counts assistant thinking blocks twice —
-        once as part of the message content loop, and once in the explicit thinking check.
 """
 
 import json
@@ -24,7 +19,11 @@ def count_tokens(text: str) -> int:
     return len(text) // CHARS_PER_TOKEN
 
 def count_json(obj) -> int:
-    return count_tokens(json.dumps(obj))  # BUG 2: will throw on non-serializable types
+    try:
+        return count_tokens(json.dumps(obj, default=str))
+    except (TypeError, ValueError):
+        # Fallback: estimate based on repr if serialization fails
+        return count_tokens(repr(obj))
 
 def system_tokens(payload: dict) -> dict:
     """Break down system prompt token usage by block."""
@@ -68,11 +67,6 @@ def history_tokens(messages: list) -> dict:
                     totals["assistant_text"] += count_tokens(block.get("text", ""))
                 elif btype == "tool_result":
                     totals["tool_results"] += count_json(block)
-
-            # BUG 3: thinking blocks counted again here
-            thinking_blocks = [b for b in content if b.get("type") == "thinking"]
-            for tb in thinking_blocks:
-                totals["assistant_thinking"] += count_tokens(tb.get("thinking", ""))
 
     return totals
 
