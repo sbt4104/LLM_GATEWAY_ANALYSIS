@@ -2,8 +2,6 @@
 Token counter for gateway payloads.
 Counts tokens per component: system, tools, history, user message.
 
-BUG 1: uses wrong encoding — cl100k_base is GPT-4's tokenizer, not Claude's.
-        Claude uses its own tokenizer. Results will be ~10-15% off.
 BUG 2: count_json() calls json.dumps but doesn't handle non-serializable types,
         will crash on datetime objects or custom classes in real payloads.
 BUG 3: the history_tokens() function counts assistant thinking blocks twice —
@@ -11,12 +9,19 @@ BUG 3: the history_tokens() function counts assistant thinking blocks twice —
 """
 
 import json
-import tiktoken
 
-enc = tiktoken.get_encoding("cl100k_base")  # BUG 1: wrong tokenizer for Claude
+# Claude uses a custom tokenizer. As an approximation, we'll use character-based estimation
+# since tiktoken's cl100k_base (GPT-4) is not accurate for Claude.
+# Rule of thumb: ~4 characters per token for English text
+CHARS_PER_TOKEN = 4
 
 def count_tokens(text: str) -> int:
-    return len(enc.encode(text))
+    """
+    Estimate token count for Claude.
+    Note: This is an approximation. For production use, integrate with Anthropic's
+    official token counting API or SDK.
+    """
+    return len(text) // CHARS_PER_TOKEN
 
 def count_json(obj) -> int:
     return count_tokens(json.dumps(obj))  # BUG 2: will throw on non-serializable types
